@@ -32,10 +32,11 @@ class Game {
 		int get_player();
 		vector<int> valid_moves();
 		void Reset();
-		string moveList() {return movesList; };
+		string moveList() { return movesList; };
 		bool Status() {return myStatus; }
 		int fake_move();
 		void updateProb() { if ( goodProb < 100 ) goodProb *= 1.25; else goodProb = 100; }
+		int** Board() { return board; };
 };
 
 //=================================
