@@ -12,4 +12,5 @@
 *.la
 *.a
 a.out
-tic-tac-toe
+connect
+*.dat

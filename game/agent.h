@@ -17,14 +17,24 @@ class Agent {
 	
 	Game* game;
 	bool debug;
-	vector<int[3][3]> states;
-	vector<double> val;
-	
-	double value(int[3][3] );
-
+	int turn;
+	double theta[HEIGHT][WIDTH][2];
+	double epsilon[HEIGHT][WIDTH][2];
+	int visit[HEIGHT][WIDTH][2];
+	double lambda;
+	double gamma;
+	double alpha;
+	double Value(int, bool );
+	double Value();
 	public:
-		Agent( Game* );
+		Agent( Game* , int);
 		void setDebug( bool x ) { debug = x; };
+		int Turn() {return turn;};
+		Game* ChangeGame(Game* other) {
+			Game* temp = game;
+			game = other;
+			return temp;
+		};
 
 		int Move();
 		void Update();

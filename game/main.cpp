@@ -11,15 +11,17 @@
 
 #include "main.h"
 #include "game.h"
-//#include "agent.h"
+#include "agent.h"
 
 using namespace std;
+
+void BenchMark(Agent* , int , int );
 
 int main(int argc, char* argv[]) {	
 	srand ( time(NULL) );
 
 	int gameCounter = 1;
-	bool debug = false;
+	bool debug = false, c1 = false, c2 = false;
 	string dumpfile = "data";
 	//read arguments and define variable based on them
 	for(int i=1; i<argc; i++) {
@@ -31,6 +33,10 @@ int main(int argc, char* argv[]) {
 				gameCounter = atoi(argv[i]);
 			else
 				usage_err(temp);
+		} else if (temp.compare("-c1") == 0) {
+			c1 = true;
+		} else if (temp.compare("-c2") == 0) {
+			c2 = true;
 		} else if (temp.compare("-dump") == 0) {
 			if(++i<argc)
 				dumpfile = argv[i];
@@ -40,34 +46,97 @@ int main(int argc, char* argv[]) {
 			usage_err(temp);
 	}
 	Game *game = new Game();
-	//game->setDebug(debug);
+	
+	Agent *p1, *p2;
+
+	if(c1) { 
+		system("touch agent1_stats.dat; rm agent1_stats.dat");
+		p1 = new Agent(game, 1);
+		p1 -> setDebug(debug);
+	}	
+	if(c2) { 
+		system("touch agent2_stats.dat; rm agent2_stats.dat");
+		p2 = new Agent(game, -1);
+		p1 -> setDebug(debug);
+	}
+	int p1win = 0, p2win = 0, tie = 0;
+	game->setDebug(false);
 	//Agent *agent = new Agent(game);
 	//agent->setDebug(debug);
 
 	for(int i=0; i<gameCounter; i++) {
 		if(debug) cout<<"Running Trial: "<<i<<endl;
-		game->Reset();
-		while(!game->Status()) {
-			game->Print();
-			//game->Eval();
-			//Action move = agent->Move();
-			//if(debug) cout<<"\tTaking Action: "<<move<<endl;
-			cout<<"Move: ";
-			int move;
-			cin>>move;
-			game->Move(move, false);
+		if(i % 10 == 0) {
+			if(debug) cout<<"BenchMarking"<<endl;
+			if(c1) BenchMark(p1, -1, i);
+			if(c2) BenchMark(p2, 1, i);
 		}
-		//agent->Update();
+		game->Reset();
+		while(game->Status()) {
+			int move;
+			if(debug) game->Print();
+			if(game->Turn() == 1 && c1) {
+				move = p1->Move();
+			} else if (game->Turn() == -1 && c2) {
+				move = p2->Move();
+			} else {
+				cout<<"Move: ";
+				cin>>move;
+			}
+			if(game->Valid(move))
+				game->Move(move);
+			else
+				cout<<"Invalid Move!"<<endl;
+			if(c1) p1->Update();
+			if(c2) p2->Update();
+		}
+		if(debug) game->Print();
+		if(debug) cout<<"Winner is: "<<game->Reward()<<endl;
+		if(game->Reward() == 1) p1win++;
+		else if (game->Reward() == -1) p2win++;
+		else tie++;
 	}
-	//agent->DumpPolicy(dumpfile);
+	cout<<"Results"<<endl;
+	cout<<"Player 1:\t"<<p1win<<endl;
+	cout<<"Player 2:\t"<<p2win<<endl;
+	cout<<"Tie:\t"<<tie<<endl;
+	p1->DumpPolicy("string");
 	return 0;
 }
 
 void usage_err(string key) {
 	if(key.compare("-h") != 0)
 		cout<<"Improper usage of "<<key<<endl;
-	cout<<"Usage: ./tic-tac-toe [-g episode] [-dump file] [-debug]"<<endl;
-	cout<<"./tic-tac-toe -h displays usage"<<endl;
+	cout<<"Usage: ./connect [-g episode] [-dump file] [-debug]"<<endl;
+	cout<<"./connect -h displays usage"<<endl;
 	cout<<"View README for info"<<endl;
 	exit(0);
+}
+
+void BenchMark(Agent *agent, int otherturn, int gameCtr) {
+	string filename = ( otherturn == -1 ? "agent1_stats.dat" : "agent2_stats.dat"); 
+	ofstream myFile;
+	myFile.open( filename.c_str(), ios::out | ios::app );
+	Game *game = new Game();
+	Agent *opponent = new Agent(game, otherturn);
+	Game *hold = agent->ChangeGame(game);
+	int tie = 0, p1win = 0, p2win = 0;
+	for(int i = 0; i < 1000; i++) {
+		game->Reset();
+		while(game->Status()) {
+			int move;
+			if(game->Turn() == agent->Turn()) {
+				move = agent->Move();
+			} else {
+				move = opponent->Move();
+			}
+			game->Move(move);
+		}
+		if(game->Reward() == 1) p1win++;
+		else if (game->Reward() == -1) p2win++;
+		else tie++;		
+	}
+	myFile<<gameCtr<<" "<<p1win<<" "<<p2win<<" "<<tie<<endl;
+	myFile.close();
+	agent->ChangeGame(hold);
 }

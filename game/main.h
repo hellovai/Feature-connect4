@@ -13,8 +13,10 @@
 
 using namespace std;
 
-void usage_err(string key);
+#define HEIGHT 5
+#define WIDTH 7
 
+void usage_err(string key);
 
 //=================================
 // end guard
