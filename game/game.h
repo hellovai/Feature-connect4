@@ -16,7 +16,6 @@ using namespace std;
 class Game {
 	int board[HEIGHT][WIDTH];
 	int full[WIDTH];
-	int curr_player;
 	int moves;
 	int winner;
 	bool debug;
@@ -35,10 +34,12 @@ class Game {
 		bool Status() {return myStatus; }
 		int Board( int i , int j ) { return board[i][j]; };
 		int Full(int x ) { return full[x]; };
-		bool Turn() {return curr_player; };
+		int curr_player;
+		bool Turn() { return curr_player; };
 		int Reward() {return winner;};
 		int last_move;
 		void setDebug(bool x) {debug = x;};
+		int Moves() { return moves; };
 };
 
 //=================================

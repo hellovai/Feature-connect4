@@ -123,7 +123,7 @@ bool Game::Win() {
  
     counter = 0;
     column = last_move;
-    while( validcoor(line, column) && (counter < 4) && (board[line][column] == player)) {
+    while( validcoor(line, column) && (counter < 5) && (board[line][column] == player)) {
         counter++;
         line++;
         column--;
@@ -146,7 +146,7 @@ bool Game::Win() {
     counter = 0;
     line = full[last_move]-1;
     column = last_move;
-    while( validcoor(line, column) && (counter < 4) && (board[line][column] == player)) {
+    while( validcoor(line, column) && (counter < 5) && (board[line][column] == player)) {
         counter++;
         line++;
         column++;

@@ -26,6 +26,7 @@ class Agent {
 	double alpha;
 	double Value(int, bool );
 	double Value();
+	double Value(int );
 	public:
 		Agent( Game* , int);
 		void setDebug( bool x ) { debug = x; };
@@ -35,6 +36,7 @@ class Agent {
 			game = other;
 			return temp;
 		};
+		void ToggleDebug() { debug = !debug; };
 
 		int Move();
 		void Update();
